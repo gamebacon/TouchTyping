@@ -1,2 +1,7 @@
+
+# MacOS file
 .DS_STORE
 
+# Intell IDEA files
+*.iml
+*.idea
