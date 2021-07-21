@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public class Sound {
 
+
     public static void playSound(String sound, int variants) {
         variants = (int) (Math.random() * variants + 1);
         try {
