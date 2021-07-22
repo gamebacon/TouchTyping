@@ -1,22 +1,24 @@
 package net.gamebacon.touchtyping;
 
-import net.gamebacon.touchtyping.io.FileManager;
+import net.gamebacon.touchtyping.io.IOManager;
+import net.gamebacon.touchtyping.keyboard.Key;
+import net.gamebacon.touchtyping.keyboard.Keyboard;
 import net.gamebacon.touchtyping.util.Data;
 import net.gamebacon.touchtyping.util.Sound;
+import net.gamebacon.touchtyping.util.Util;
 
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
+import java.text.SimpleDateFormat;
 
-public class TouchTyping extends JFrame implements KeyListener, FocusListener {
+public class TouchTyping extends JFrame implements KeyListener, FocusListener, ActionListener {
 
     private final char SPACE_CHAR = '␣';
     private final int WORDS_PER_TEXT_PORTION = 20;
-    private final int LINE_WIDTH = 35;
+    private final int LINE_WIDTH = 50;
 
     private final Color CORRECT_COLOR = new Color(37, 167, 37);
     private final Color WRONG_COLOR = new Color(189, 26, 26);
@@ -29,14 +31,14 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
     private final JTextPane textPane = new JTextPane(doc);
 
 
-    private final FileManager fileManager = new FileManager();
+    private final IOManager fileManager = new IOManager();
 
 
     private final Data data = new Data();
 
-    private final Font font = new Font("Serif", Font.TRUETYPE_FONT, 30);
+    private final Font font = new Font(Font.MONOSPACED, Font.PLAIN, 40);
 
-    private final Dimension FRAME_SIZE = new Dimension(500,500);
+    private final Dimension FRAME_SIZE = new Dimension(1200,550);
     private final Dimension TEXTAREA_SIZE = new Dimension(450, 200);
 
 
@@ -44,6 +46,8 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
     private final JCheckBox useSoundCheckBox = new JCheckBox("Sounds", true);
     private final JCheckBox forgiveErrorsBox = new JCheckBox("Forgive errors", false);
     private final JButton focusButton = new JButton("Start");
+
+    private final Keyboard keyboard = new Keyboard();
 
     private int fullIndex = 0;
     private int currentIndex = 0;
@@ -60,11 +64,19 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
     private String currentTextPortion = "";
 
     private String[] fullTextWords;
-
     private int score = 0;
 
+    private boolean init = false;
+
+    private final Clip themeSong;
+    private Timer timer = new Timer(1000, this);
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("ss:mm") ;
+    private final JLabel WPMText = new JLabel("WPM: 0");
+    private int WPM = 0;
+    private int sec = 0;
 
     public TouchTyping() {
+        themeSong = Sound.getClip("/sounds/song.wav");
         init();
     }
 
@@ -80,11 +92,14 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
 
         focusButton.addActionListener(e -> {
             this.requestFocus();
+            System.out.println(getSize());
         });
 
 
         JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BoxLayout(topPanel, 2));
+        BoxLayout boxLayout = new BoxLayout(topPanel, 2);
+        topPanel.setLayout(boxLayout);
+        topPanel.add(WPMText);
         topPanel.add(scoreText);
         topPanel.add(focusButton);
         topPanel.add(useSoundCheckBox);
@@ -106,6 +121,7 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
         mainPanel.add(jScrollPane);
 
 
+        mainPanel.add(keyboard);
 
 
         getContentPane().add(mainPanel);
@@ -127,32 +143,52 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
+        System.out.println(e.getKeyChar() + "-" + e.getExtendedKeyCode());
+
+        Key key = Util.getKey(e.getExtendedKeyCode());
+        keyboard.push(key);
+
+        if(!init) {
+            themeSong.start();
+            themeSong.loop(10);
+            init = true;
+            timer.start();
+        }
+
+
+        boolean isSpace = e.getKeyChar() == ' ';
+
         char org = currentTextPortion.charAt(currentIndex);
-        char TYPED = e.getKeyChar() == ' ' ? SPACE_CHAR : e.getKeyChar();
+        char TYPED = isSpace ? SPACE_CHAR : e.getKeyChar();
 
         boolean isLineBreak = org == '\n';
+        boolean isBackSpace = e.getExtendedKeyCode() == 8;
 
         if(isLineBreak)
             org = currentTextPortion.charAt(++currentIndex);
 
+        final boolean correct = org == TYPED;
 
-        //System.err.println(String.format("org: %c, typed: %c, index: %d", org, TYPED, currentIndex));
+        if(false && isBackSpace)
+            currentIndex--;
 
-        boolean correct = org == TYPED;
-
-
-        Style style = context.addStyle("Gello", null);
-        StyleConstants.setForeground(style, correct ? CORRECT_COLOR : WRONG_COLOR);
-        try {
-            doc.replace(currentIndex, 1, String.valueOf(org), style);
-        } catch (BadLocationException badLocationException) {
-            badLocationException.printStackTrace();
+        if(isSpace && correct) {
+            WPM++;
         }
 
-        if(correct)
+        Color color = correct ? CORRECT_COLOR : isBackSpace ? DEFAULT_COLOR : WRONG_COLOR;
+        setCurrentChar(org, color);
+        //System.err.println(String.format("org: %c, typed: %c, index: %d, corrct: %b", org, TYPED, currentIndex, correct));
+
+
+
+        if(correct) {
             score++;
-        else
+        } else {
             updateErrorCount(TYPED);
+            themeSong.setFramePosition(0);
+            themeSong.start();
+        }
 
 		if(useSound()) {
 			if(!correct && !forgiveErrorsBox.isSelected())
@@ -160,14 +196,28 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
         	Sound.playSound("key_typed", 3);
 		}
 
-        if (correct || !forgiveErrorsBox.isSelected())
+
+        if (correct || !forgiveErrorsBox.isSelected()) {
             currentIndex++;
+            fullIndex++;
+        }
 
         if(currentIndex >= currentTextPortion.length())
             prepareText();
 
         updateScore();
         visualiseCursor();
+    }
+
+    private void setCurrentChar(char c, Color color) {
+        Style style = context.addStyle("Gello", null);
+        StyleConstants.setForeground(style, color);
+        try {
+            doc.replace(currentIndex, 1, String.valueOf(c), style);
+        } catch (BadLocationException badLocationException) {
+            badLocationException.printStackTrace();
+        }
+
     }
 
     private void updateErrorCount(char typed) {
@@ -177,12 +227,17 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
     private void updateScore() {
         float percent =  ((float) score/fullIndex) * 100;
         scoreText.setText(String.format("Success rate: %.1f%s", percent, "%"));
+        //System.out.println(String.format("percent: %.1f, score: %d, index: %d", percent, score, fullIndex));
+    }
+
+    private void updateWPM() {
+        WPMText.setText(String.format("WPM: %.1f", ((float) WPM/((float) sec/60))));
     }
 
 
 
     private void prepareText() {
-        fullIndex += currentIndex;
+        //fullIndex += currentIndex;
 
         currentTextPortion = getTextPortion();//fullText.substring(fullIndex, fullIndex + MAX_TEXT_CHAR_PORTION).replace(' ', SPACE_CHAR);
         textPane.setText(currentTextPortion);
@@ -196,6 +251,8 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
     private void initDoc() {
         attributeSet.addAttribute(StyleConstants.ColorConstants.Foreground, DEFAULT_COLOR);
         StyleConstants.setAlignment(attributeSet, StyleConstants.ALIGN_CENTER);
+        //StyleConstants.setLineSpacing(attributeSet, 1.5f);
+
 
         doc.setCharacterAttributes(0, currentTextPortion.length(), attributeSet, true);
         doc.setParagraphAttributes(0, doc.getLength(), attributeSet,false);
@@ -246,7 +303,7 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
 
         Style style = context.addStyle("Gello", null);
         StyleConstants.setForeground(style, HIGHLIGHT_COLOR);
-        //StyleConstants.setBold(style, true);
+        StyleConstants.setUnderline(style, true);
         doc.setCharacterAttributes(currentIndex + extra, 1, style, true);
     }
 
@@ -260,5 +317,12 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener {
     @Override
     public void focusLost(FocusEvent e) {
         System.err.println("focus lost");
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        sec++;
+        updateWPM();
+        //System.out.println(dateFormat.format(System.currentTimeMillis()));
     }
 }
