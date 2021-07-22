@@ -35,19 +35,32 @@ public class Keyboard extends JPanel {
             // second dimension representing each key
             for (int col = 0; col < keys[row].length; ++col, ++i) {
                 final Key key = keys[row][col];
+                Color color = null;
+                switch (col) {
+                    case 1: color = Util.L1; break;
+                    case 2: color = Util.L2; break;
+                    case 3: color = Util.L3; break;
+                    case 4: color = Util.L4; break;
+                    case 5: color = Util.L4; break;
+                    case 6: color = Util.R4; break;
+                    case 7: color = Util.R4; break;
+                    case 8: color = Util.R3; break;
+                    case 9: color = Util.R2; break;
+                    case 10: color = Util.R1; break;
+                }
                 // specify padding and insets for the buttons
                 switch (key) {
                     case BACKSPACE:   cButton.ipadx = 0; break;
-                    case TAB:         cButton.ipadx = 17; break;
-                    case CAPS_LOCK:        cButton.ipadx = 10; break;
+                    case TAB:         cButton.ipadx = 17 + 10; break;
+                    case CAPS_LOCK:        cButton.ipadx = 10 + 20; break;
                     case ENTER:       cButton.ipadx = 27; break;
-                    case LEFT_SHIFT:       cButton.ipadx = 27; break;
+                    case LEFT_SHIFT:       cButton.ipadx = 27 + 10; break;
                     case FORWARD_DASH:
                         //cButton.insets = new Insets(0, 0, 0, 24);
                         break;
                     case SPACE:
                         cButton.ipadx = 247;
-                        cButton.insets = new Insets(0, 192 + 50, 0, 72 + 50);
+                        cButton.insets = new Insets(0, 192 + 100, 0, 72 + 50);
                         break;
                     default:
                         cButton.ipadx = 7;
@@ -55,6 +68,12 @@ public class Keyboard extends JPanel {
                 }
 
                 button = new JButton(key.toString());
+                if(color != null) {
+                    button.setBorderPainted(true);
+                    //button.setForeground(color);
+                    button.setBackground(color);
+                    button.setOpaque(true);
+                }
                 button.setFont(monospace);
                 button.setFocusable(false);
                 buttons.put(key, button);
@@ -66,7 +85,7 @@ public class Keyboard extends JPanel {
     }
 
     public void push(Key key) {
-        buttons.get(key).doClick(100);
+        buttons.get(key).doClick();
     }
 
 

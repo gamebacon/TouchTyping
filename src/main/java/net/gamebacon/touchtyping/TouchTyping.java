@@ -135,6 +135,13 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
 
         prepareText();
 
+        if(true)
+            try{
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
         setVisible(true);
     }
 
@@ -149,8 +156,8 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
         keyboard.push(key);
 
         if(!init) {
-            themeSong.start();
-            themeSong.loop(10);
+            //themeSong.start();
+            //themeSong.loop(10);
             init = true;
             timer.start();
         }
@@ -186,8 +193,8 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
             score++;
         } else {
             updateErrorCount(TYPED);
-            themeSong.setFramePosition(0);
-            themeSong.start();
+            //themeSong.setFramePosition(0);
+            //themeSong.start();
         }
 
 		if(useSound()) {

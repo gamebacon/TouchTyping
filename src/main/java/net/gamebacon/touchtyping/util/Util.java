@@ -3,10 +3,23 @@ package net.gamebacon.touchtyping.util;
 import net.gamebacon.touchtyping.keyboard.Key;
 import net.gamebacon.touchtyping.keyboard.KeyboardType;
 
+import java.awt.*;
 import java.util.HashMap;
 
 
 public class Util {
+
+    public static final Color L1 = new Color(246, 107, 107);
+    public static final Color L3 = new Color(108, 115, 194);
+    public static final Color L4 = new Color(59, 160, 160);
+    public static final Color L2 = new Color(169, 97, 215);
+
+    public static final Color R1 = new Color(191, 84, 34);
+    public static final Color R2 = new Color(210, 193, 90);
+    public static final Color R3 = new Color(127, 172, 105);
+    public static final Color R4 = new Color(199, 88, 88);
+
+
     public final static HashMap<KeyboardType, Key[][]> keyboards = new HashMap<KeyboardType, Key[][]>();
 
     static {
