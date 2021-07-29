@@ -19,10 +19,17 @@ public class Util {
     public static final Color R3 = new Color(127, 172, 105);
     public static final Color R4 = new Color(199, 88, 88);
 
+    public static final Color RL5 = new Color(145, 4, 175);
 
-    public final static HashMap<KeyboardType, Key[][]> keyboards = new HashMap<KeyboardType, Key[][]>();
+
+    public final static HashMap<Integer, Key> keys = new HashMap<>();
+    public final static HashMap<KeyboardType, Key[][]> keyboards = new HashMap<>();
 
     static {
+
+        for(Key key : Key.values())
+            keys.put(key.getKeycode(), key);
+
         keyboards.put(KeyboardType.AMERICAN, new Key[][]{
                 {Key.THING, Key.ONE, Key.TWO, Key.THREE, Key.FOUR, Key.FIVE, Key.SIX, Key.SEVEN, Key.EIGHT, Key.NINE, Key.ZERO, Key.DASH, Key.EQUALS, Key.BACKSPACE},
                 {Key.TAB, Key.Q, Key.W, Key.E, Key.R, Key.T, Key.Y, Key.U, Key.I, Key.O, Key.P, Key.LEFT_BRACKET, Key.RIGHT_BRACKET, Key.BACKWARDS_DASH},
@@ -39,12 +46,4 @@ public class Util {
                 {Key.SPACE, Key.LEFT, Key.DOWN, Key.RIGHT}
         });
     }
-
-    public static Key getKey(int keycode) {
-        for(Key key :Key.values())
-            if(key.getKeycode() == keycode)
-                return key;
-            return null;
-    }
-
 }

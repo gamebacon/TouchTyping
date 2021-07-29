@@ -1,7 +1,8 @@
 /Users/kickass/code/java/TouchTyping/src/main/java/net/gamebacon/touchtyping/util/Data.java
 /Users/kickass/code/java/TouchTyping/src/main/java/net/gamebacon/touchtyping/TouchTyping.java
+/Users/kickass/code/java/TouchTyping/src/main/java/net/gamebacon/touchtyping/util/sound/SoundUtil.java
+/Users/kickass/code/java/TouchTyping/src/main/java/net/gamebacon/touchtyping/util/sound/Sound.java
 /Users/kickass/code/java/TouchTyping/src/main/java/net/gamebacon/touchtyping/Driver.java
-/Users/kickass/code/java/TouchTyping/src/main/java/net/gamebacon/touchtyping/util/Sound.java
 /Users/kickass/code/java/TouchTyping/src/main/java/net/gamebacon/touchtyping/io/IOManager.java
 /Users/kickass/code/java/TouchTyping/src/main/java/net/gamebacon/touchtyping/keyboard/KeyboardType.java
 /Users/kickass/code/java/TouchTyping/src/main/java/net/gamebacon/touchtyping/keyboard/Key.java

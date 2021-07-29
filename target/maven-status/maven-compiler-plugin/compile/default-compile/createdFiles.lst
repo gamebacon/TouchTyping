@@ -1,7 +1,8 @@
 net/gamebacon/touchtyping/io/IOManager.class
 net/gamebacon/touchtyping/keyboard/KeyboardType.class
+net/gamebacon/touchtyping/util/sound/Sound.class
 net/gamebacon/touchtyping/util/Util.class
-net/gamebacon/touchtyping/util/Sound.class
+net/gamebacon/touchtyping/util/sound/SoundUtil.class
 net/gamebacon/touchtyping/keyboard/Key.class
 net/gamebacon/touchtyping/io/DataBase.class
 net/gamebacon/touchtyping/util/Data.class

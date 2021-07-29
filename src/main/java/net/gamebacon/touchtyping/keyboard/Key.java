@@ -4,6 +4,9 @@ import java.util.Locale;
 
 public enum Key {
 
+    LEFT_PARENTHESES(519, "("),
+    RIGHT_PARENTHESES(522, ")"),
+
     LEFT_BRACKET(91, "["),
     RIGHT_BRACKET(93, "]"),
     DASH(45, "-"),
@@ -20,17 +23,20 @@ public enum Key {
 
     THING(192, "`"),
     THING2(222, "'"),
+
     SPACE(32, " "),
+    SPACE_REPLACEMENT(0, "␣"),
+
     RIGHT_SHIFT(-1, "Shift"),
     LEFT_SHIFT(-1, "Shift"),
 
     TAB(-1, "TAB"),
     CAPS_LOCK(-1, "Caps"),
 
-    UP(-1, "\\u2191"),
-    DOWN(-1, "\\u2190"),
-    LEFT(-1, "\\u2193"),
-    RIGHT(-1, "\\u2192"),
+    UP(-1, "\u2191"),
+    DOWN(-1, "\u2193"),
+    LEFT(-1, "\u2190"),
+    RIGHT(-1, "\u2192"),
 
     ONE(49, "1"),
     TWO(50, "2"),

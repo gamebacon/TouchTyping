@@ -4,17 +4,19 @@ import net.gamebacon.touchtyping.util.Util;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Keyboard extends JPanel {
 
-    HashMap<Key, JButton> buttons = new HashMap<>();
+    private final HashMap<Key, JButton> buttons = new HashMap<>();
 
     public Keyboard() {
         setLayout(new GridBagLayout());
 
         Insets zeroInset = new Insets(0, 0, 0, 0);
-        Font monospace = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+        final Font monospace = new Font(Font.MONOSPACED, Font.BOLD, 15);
 
         JPanel pRow;
         JButton button;
@@ -37,6 +39,7 @@ public class Keyboard extends JPanel {
                 final Key key = keys[row][col];
                 Color color = null;
                 switch (col) {
+                    case 0: color = Util.L1; break;
                     case 1: color = Util.L1; break;
                     case 2: color = Util.L2; break;
                     case 3: color = Util.L3; break;
@@ -47,7 +50,11 @@ public class Keyboard extends JPanel {
                     case 8: color = Util.R3; break;
                     case 9: color = Util.R2; break;
                     case 10: color = Util.R1; break;
+                    default: color = Util.R1; break;
                 }
+                if(key == Key.SPACE)
+                    color = Util.RL5;
+
                 // specify padding and insets for the buttons
                 switch (key) {
                     case BACKSPACE:   cButton.ipadx = 0; break;
@@ -59,8 +66,8 @@ public class Keyboard extends JPanel {
                         //cButton.insets = new Insets(0, 0, 0, 24);
                         break;
                     case SPACE:
-                        cButton.ipadx = 247;
-                        cButton.insets = new Insets(0, 192 + 100, 0, 72 + 50);
+                        cButton.ipadx = 350;
+                        cButton.insets = new Insets(0, 192 + 180, 0, 72 + 90);
                         break;
                     default:
                         cButton.ipadx = 7;
@@ -68,12 +75,10 @@ public class Keyboard extends JPanel {
                 }
 
                 button = new JButton(key.toString());
-                if(color != null) {
-                    button.setBorderPainted(true);
-                    //button.setForeground(color);
-                    button.setBackground(color);
-                    button.setOpaque(true);
-                }
+                button.setForeground(color);
+                button.setBackground(color);
+                button.setOpaque(false);
+
                 button.setFont(monospace);
                 button.setFocusable(false);
                 buttons.put(key, button);
@@ -84,9 +89,12 @@ public class Keyboard extends JPanel {
         }
     }
 
-    public void push(Key key) {
-        buttons.get(key).doClick();
+    public HashMap<Key, JButton> getButtons() {
+        return buttons;
     }
 
-
+    public void click(Key key) {
+        if(buttons.containsKey(key))
+            buttons.get(key).doClick();
+    }
 }
