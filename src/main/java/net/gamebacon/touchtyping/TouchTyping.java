@@ -1,6 +1,5 @@
 package net.gamebacon.touchtyping;
 
-import net.gamebacon.touchtyping.io.IOManager;
 import net.gamebacon.touchtyping.keyboard.Key;
 import net.gamebacon.touchtyping.keyboard.Keyboard;
 import net.gamebacon.touchtyping.util.Data;
@@ -13,7 +12,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class TouchTyping extends JFrame implements KeyListener, FocusListener, ActionListener {
 
@@ -74,6 +73,8 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
     private int WPM = 0;
     private int sec = 0;
 
+
+
     public TouchTyping() {
         themeSong = SoundUtil.getClip("/sounds/song.wav");
         init();
@@ -82,6 +83,8 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
     private void init() {
 
         fullTextWords = fullText.split(" ");
+
+
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, 1));
@@ -135,20 +138,43 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
 
         prepareText();
 
-        if(true)
+        if(false)
             try{
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             }catch(Exception e){
                 e.printStackTrace();
             }
 
+        setupOS();
+
         setVisible(true);
     }
 
     @Override
-    public void keyTyped(final KeyEvent e) {
-        Key typed_key = Util.keys.get(e.getExtendedKeyCode());
-        Key org_key = Util.keys.get(KeyEvent.getExtendedKeyCodeForChar(getCurrentChar()));
+    public void keyPressed(final KeyEvent e) {
+
+
+        final int keyCode = e.getExtendedKeyCode();
+        final char typedChar = e.getKeyChar();
+
+        if(useSound()) {
+            SoundUtil.playSound(Sound.KEY_PUSH);
+        }
+
+        if(!Util.keys.containsKey(keyCode)) {
+            return;
+        }
+
+        final char orgChar = getCurrentCharFromText();
+
+        boolean isCaseMatch = true;
+
+        if(Character.isUpperCase(orgChar)) {
+            isCaseMatch = Character.isUpperCase(typedChar);
+        }
+
+        Key typed_key = Util.keys.get(keyCode);
+        Key org_key = Util.keys.get(KeyEvent.getExtendedKeyCodeForChar(getCurrentCharFromText()));
 
 
         if (!init) {
@@ -160,42 +186,52 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
             org_key = Util.keys.get(KeyEvent.getExtendedKeyCodeForChar(currentTextPortion.charAt(++currentIndex)));
         }
 
-        if(typed_key == Key.SPACE)
+        if(typed_key == Key.SPACE) {
             typed_key = Key.SPACE_REPLACEMENT;
+        }
 
 
-        final boolean correct = typed_key == org_key;
+        final boolean correct = isCaseMatch && typed_key == org_key;
 
+        Log.debug(String.format("Typed: (%s) Org: (%s)", typed_key.toString(), org_key.toString()));
+
+        /*
         System.out.println((int) 'a');
         System.out.println((int) 'A');
 
         System.out.println(String.format("actual: %d, typed: %d, correct: %b", ((int) getCurrentChar()), e.getKeyCode(), correct));
         System.out.println(String.format("actual: %d, typed: %d, correct: %b", KeyEvent.getExtendedKeyCodeForChar(getCurrentChar()), e.getExtendedKeyCode(), correct));
+
+         */
         //System.out.println(String.format("actual: %s, typed: %s", org_key.toString(), typed_key.toString()));
 
         if (org_key == Key.SPACE) {
             wordIndex++;
-            if(correct)
+            if(correct) {
                 WPM++;
+            }
         }
 
-        if(!debug())
+        if(!debug()) {
             setCurrentChar(correct ? CORRECT_COLOR : WRONG_COLOR);
+        }
 
         keyboard.click(typed_key);
+
 
         if (correct || !mustCompleteBox.isSelected()) {
             currentIndex++;
             fullIndex++;
         }
 
-        if (currentIndex >= currentTextPortion.length())
+        if (currentIndex >= currentTextPortion.length()) {
             prepareText();
+        }
 
         visualiseCursor();
     }
 
-    private char getCurrentChar() {
+    private char getCurrentCharFromText() {
         return currentTextPortion.charAt(currentIndex);
     }
 
@@ -203,7 +239,7 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
         Style style = context.addStyle("Gello", null);
         StyleConstants.setForeground(style, color);
         try {
-            doc.replace(currentIndex, 1, String.valueOf(getCurrentChar()), style);
+            doc.replace(currentIndex, 1, String.valueOf(getCurrentCharFromText()), style);
         } catch (BadLocationException badLocationException) {
             badLocationException.printStackTrace();
         }
@@ -224,7 +260,19 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
         WPMText.setText(String.format("WPM: %.1f", ((float) WPM/((float) sec/60))));
     }
 
+    private void setupOS() {
 
+        if(Util.getOS().contains("windows")) { //inställningar för windows os
+            try {
+                UIManager.setLookAndFeel(Util.windowsLook);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (Util.getOS().contains("mac")) { //inställningar för mac os
+            //Taskbar.getTaskbar().setIconImage(Util.iconImage);
+            //UIManager.setLookAndFeel(Util.appleLook);
+        }
+    }
 
     private void prepareText() {
         //fullIndex += currentIndex;
@@ -278,16 +326,24 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
     }
 
 
+
     @Override
-    public void keyPressed(KeyEvent e) {
-        if(false && useSound())
+    public void keyTyped(KeyEvent e) {
+        /*
+        if(useSound()) {
             SoundUtil.playSound(Sound.KEY_PUSH);
+        }
+
+         */
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if(false && useSound())
+        /*
+        if(useSound()) {
             SoundUtil.playSound(Sound.KEY_RELEASE);
+        }
+         */
     }
 
     private boolean useSound() {

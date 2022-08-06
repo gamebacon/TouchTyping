@@ -94,7 +94,10 @@ public class Keyboard extends JPanel {
     }
 
     public void click(Key key) {
-        if(buttons.containsKey(key))
+
+        if(buttons.containsKey(key)) {
             buttons.get(key).doClick();
+        }
     }
+
 }

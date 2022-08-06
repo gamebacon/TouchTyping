@@ -1,5 +1,6 @@
 package net.gamebacon.touchtyping.util;
 
+import lombok.experimental.UtilityClass;
 import net.gamebacon.touchtyping.keyboard.Key;
 import net.gamebacon.touchtyping.keyboard.KeyboardType;
 
@@ -7,6 +8,7 @@ import java.awt.*;
 import java.util.HashMap;
 
 
+@UtilityClass
 public class Util {
 
     public static final Color L1 = new Color(246, 107, 107);
@@ -27,8 +29,9 @@ public class Util {
 
     static {
 
-        for(Key key : Key.values())
+        for(Key key : Key.values()) {
             keys.put(key.getKeycode(), key);
+        }
 
         keyboards.put(KeyboardType.AMERICAN, new Key[][]{
                 {Key.THING, Key.ONE, Key.TWO, Key.THREE, Key.FOUR, Key.FIVE, Key.SIX, Key.SEVEN, Key.EIGHT, Key.NINE, Key.ZERO, Key.DASH, Key.EQUALS, Key.BACKSPACE},
@@ -46,4 +49,13 @@ public class Util {
                 {Key.SPACE, Key.LEFT, Key.DOWN, Key.RIGHT}
         });
     }
+
+    public static String getOS() {
+        return System.getProperty("os.name").toLowerCase();
+    }
+
+    public static final String windowsLook = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+    public static final String appleLook = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+
+
 }
