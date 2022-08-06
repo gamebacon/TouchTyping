@@ -5,3 +5,4 @@
 # Intell IDEA files
 *.iml
 *.idea
+/target
