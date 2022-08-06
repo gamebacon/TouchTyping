@@ -16,6 +16,8 @@ import java.util.Locale;
 
 public class TouchTyping extends JFrame implements KeyListener, FocusListener, ActionListener {
 
+    private static boolean debug;
+
     private final char SPACE_CHAR = '␣';
     private final int WORDS_PER_TEXT_PORTION = 20;
     private final int LINE_WIDTH = 50;
@@ -94,9 +96,15 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
 
         focusButton.addActionListener(e -> {
             this.requestFocus();
-            System.out.println(getSize());
+            //System.out.println(getSize());
         });
 
+
+        debugCheck.addItemListener(event -> {
+            final boolean select = event.getStateChange() == ItemEvent.SELECTED;
+            debug = select;
+            Log.debug("debug: " + select);
+        });
 
         JPanel topPanel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(topPanel, 2);
@@ -138,6 +146,7 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
 
         prepareText();
 
+        /*
         if(false)
             try{
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
@@ -146,6 +155,7 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
             }
 
         setupOS();
+         */
 
         setVisible(true);
     }
@@ -212,7 +222,7 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
             }
         }
 
-        if(!debug()) {
+        if(!isDebugEnabled()) {
             setCurrentChar(correct ? CORRECT_COLOR : WRONG_COLOR);
         }
 
@@ -349,8 +359,10 @@ public class TouchTyping extends JFrame implements KeyListener, FocusListener, A
     private boolean useSound() {
         return useSoundCheckBox.isSelected();
     }
-    private boolean debug() {
-        return debugCheck.isSelected();
+
+
+    public static boolean isDebugEnabled() {
+        return debug;
     }
 
     private void visualiseCursor() {
